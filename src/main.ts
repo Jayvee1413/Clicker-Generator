@@ -60,6 +60,7 @@ const store = createStore<UiState>({
   currentIconName: 'circle',
   colorMode: 'normal',
   limitedColors: [],
+  traceEngine: 'potrace',
   bodyColorRgb: [240, 240, 240] as RGB,
   paletteOverrides: [],
   baseColorOverride: null,
@@ -173,6 +174,10 @@ const ui = createUi(sidebarLeft, sidebarRight, statusEl, {
   },
   onSmoothing: (v) => {
     store.set({ smoothing: v });
+    if (store.get().importMode === 'image' && hasImage()) debouncedReprocess();
+  },
+  onTraceEngine: (engine) => {
+    store.set({ traceEngine: engine });
     if (store.get().importMode === 'image' && hasImage()) debouncedReprocess();
   },
   onRemoveBg: (on) => {
@@ -758,6 +763,7 @@ function reprocess() {
     regionSet = processImage(cloneImage(originalImage), s.colorCount, {
       removeBg: s.removeBg,
       smoothing: s.smoothing,
+      engine: s.traceEngine,
       customColors: s.colorMode === 'limited' ? s.limitedColors : undefined,
     });
   } else if (s.importMode === 'svg') {
@@ -950,6 +956,7 @@ function serializeProject(): ProjectFile {
       currentIconName,
       colorMode: s.colorMode,
       limitedColors: s.limitedColors,
+      traceEngine: s.traceEngine,
       bodyColorRgb: s.bodyColorRgb,
       paletteOverrides: s.paletteOverrides,
       baseColorOverride: s.baseColorOverride,
@@ -993,6 +1000,7 @@ async function applyProject(proj: ProjectFile, quiet = false) {
     currentIconName: currentIconName || 'circle',
     colorMode: (set.colorMode as UiState['colorMode']) ?? 'normal',
     limitedColors: (set.limitedColors as RGB[]) ?? [],
+    traceEngine: (set.traceEngine as UiState['traceEngine']) ?? 'potrace',
     bodyColorRgb: (set.bodyColorRgb as RGB) ?? [120, 124, 130],
     paletteOverrides: (set.paletteOverrides as RGB[]) ?? [],
     baseColorOverride: (set.baseColorOverride as RGB | null) ?? null,

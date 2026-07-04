@@ -1,4 +1,4 @@
-import type { BaseShapeKind, EditMode, EdgeSetting, EdgeStyle, PaletteEntry, Ring, ViewMode, RGB } from '../types';
+import type { BaseShapeKind, EditMode, EdgeSetting, EdgeStyle, PaletteEntry, Ring, ViewMode, RGB, TraceEngine } from '../types';
 import { FILAMENTS } from '../types';
 import type { SectionAxis } from '../viewer/viewer';
 import { SAMPLES } from '../image/sample';
@@ -28,6 +28,7 @@ export interface UiState {
   currentIconName: string;
   colorMode: 'normal' | 'limited';
   limitedColors: RGB[];
+  traceEngine: TraceEngine;
   bodyColorRgb: RGB;
   paletteOverrides: RGB[];
   /** Explicit cap-backing/frame color set by clicking it on the model (else derived). */
@@ -59,6 +60,7 @@ export interface UiCallbacks {
   onSample(load: () => Promise<RgbaImage>): void;
   onColorCount(n: number): void;
   onSmoothing(v: number): void;
+  onTraceEngine(engine: TraceEngine): void;
   onFilament(index: number, hex: string): void;
   onShape(kind: BaseShapeKind): void;
   onCornerRadius(mm: number): void;
@@ -247,6 +249,13 @@ export function createUi(
             <input type="text" class="val" id="smoothVal" />
           </div>
           <input type="range" id="smooth" min="0" max="1" step="0.05" />
+        </div>
+        <div class="field" id="traceEngineField">
+          <label for="traceEngine">Trace engine ${tip('Contour is fast and good for photos. Potrace produces cleaner, curve-accurate outlines and is better for logos/line-art.')}</label>
+          <select id="traceEngine">
+            <option value="contour">Contour</option>
+            <option value="potrace">Potrace</option>
+          </select>
         </div>
         <div class="palette" id="palette">
           <div class="hint">Load an image/vector to pick colors.</div>
@@ -831,6 +840,8 @@ export function createUi(
   ccount.addEventListener('change', () => cb.onColorCount(+ccount.value));
   const smooth = $<HTMLInputElement>('smooth');
   smooth.addEventListener('input', () => cb.onSmoothing(+smooth.value));
+  const traceEngine = $<HTMLSelectElement>('traceEngine');
+  traceEngine.addEventListener('change', () => cb.onTraceEngine(traceEngine.value as TraceEngine));
 
   // --- Shape ---
   const shapeTypeTabs = $('shapeTypeTabs');
@@ -1560,6 +1571,11 @@ export function createUi(
     };
     smooth.value = String(state.smoothing);
     setVal('smoothVal', Math.round(state.smoothing * 100) + '%');
+    traceEngine.value = state.traceEngine || 'contour';
+
+    // Trace engine selector is only meaningful for raster images.
+    const traceEngineField = $('traceEngineField');
+    if (traceEngineField) traceEngineField.style.display = state.importMode === 'image' ? 'grid' : 'none';
     width.value = String(state.capWidthMm);
     setVal('widthVal', state.capWidthMm + ' mm');
     topthick.value = String(state.topThickness);

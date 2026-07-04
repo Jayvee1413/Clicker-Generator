@@ -41,6 +41,8 @@ export interface PaletteEntry {
   coverage: number; // fraction of foreground pixels
 }
 
+export type TraceEngine = 'contour' | 'potrace';
+
 export type BaseShapeKind = 'outline' | 'circle' | 'square' | 'hexagon' | 'heart' | 'star' | 'egg' | 'custom';
 export type ViewMode = 'assembled' | 'exploded' | 'section';
 
