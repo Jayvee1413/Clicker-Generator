@@ -2,7 +2,11 @@
 
 Browser-based generator that turns an image into a print-ready **3MF** of a multicolor "clicker" — a 3D-printed pressable button built around a real **Cherry MX** mechanical switch. 100% client-side, deployed on GitHub Pages (no backend, no hosting cost).
 
-**Live site:** https://Jayvee1413.github.io/Clicker-Generator/
+**Live site:** https://clicker-generator-835140900776.us-central1.run.app
+
+**GitHub repo:** https://github.com/Jayvee1413/Clicker-Generator
+
+Pushing to `main` automatically deploys to Google Cloud Run via `.github/workflows/deploy-gcp.yml`.
 
 ## How it works
 
